@@ -53,7 +53,7 @@ public class LoadMap : MonoBehaviour
             new Vector3(half, 0.5f, size - 2)
         };
 
-        Gameplay.enemy = new GameObject[16];
+        
         for (int i = 1; i <= Players; i++)
         {
             var player = Instantiate(Player, array[i - 1], Quaternion.identity);
@@ -68,7 +68,7 @@ public class LoadMap : MonoBehaviour
             {
                 print("player id: "+PlayerId.ToString()+ "    now: " + i.ToString());
                 player.GetComponent<PlayerController>().enabled = false;
-                Gameplay.enemy[i] = player;
+                Gameplay.instance.SetEnemy(player, i);
             }
             else
             {

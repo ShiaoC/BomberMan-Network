@@ -8,8 +8,15 @@ public class Gameplay : MonoBehaviour
 {
     public Text round;
     public GameObject Dashboard;
-    public static GameObject[] enemy;
+    public GameObject[] enemy;
+    public static Gameplay instance;
 
+
+    void Awake()
+    {
+        instance = this;
+        enemy = new GameObject[12];
+    }
 
     public void GameStart()
     {
@@ -20,9 +27,19 @@ public class Gameplay : MonoBehaviour
         MyPlayerPrefs.SetFollowers();
     }
 
+    public void SetEnemy(GameObject go, int id)
+    {
+        enemy[id] = go;
+        Debug.Log("setting enemy  " + id.ToString());
+    }
+
+    public GameObject GetEnemy(int id)
+    {
+        return enemy[id];
+    }
+
     public void GameEnd()
     {
-        //MyPlayerPrefs.IncreaseScore();
         int roundId = MyPlayerPrefs.GetLevel();
 
         int rounds = MyPlayerPrefs.GetLevels();
@@ -53,4 +70,5 @@ public class Gameplay : MonoBehaviour
     {
         MyPlayerPrefs.KillAgent(GameEnd, PlayerId);
     }
+
 }

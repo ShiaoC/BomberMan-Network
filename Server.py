@@ -1,7 +1,6 @@
 import socket
 import threading
 import time
-import random
 
 # Global variables
 player_id_counter = 1
@@ -11,6 +10,7 @@ player_scores = {}
 player_positions = {}
 player_count = 0
 game_running = False
+available_ids = []
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,14 +46,18 @@ def broadcast_ready_count():
 
 def check_all_ready():
     broadcast_ready_count()
-    if all(player_ready_status.values()):
+    if all(player_ready_status.values()) and player_ready_status:
         broadcast_start_game()
         time.sleep(2)
 
 def handle_client_connection(connection, address):
-    global player_id_counter, player_count, player_ready_status, player_scores, player_positions
-    player_id = player_id_counter
-    player_id_counter += 1
+    global player_id_counter, player_count, player_ready_status, player_scores, player_positions, available_ids
+    
+    if available_ids:
+        player_id = available_ids.pop(0)
+    else:
+        player_id = player_id_counter
+        player_id_counter += 1
 
     player_connections[player_id] = connection
     player_ready_status[player_id] = False
@@ -79,6 +83,9 @@ def handle_client_connection(connection, address):
                 player_ready_status[player_id] = True
                 print(f"Player {player_id} is ready.")
                 check_all_ready()
+            elif data.startswith(f"{player_id}/Bomb/"):
+                _, _, x, y, size = data.split('/')
+                broadcast(f"Bomb/{player_id}/{x}/{y}/{size}")
             elif data == f"{player_id}/CancelReady":
                 player_ready_status[player_id] = False
                 print(f"Player {player_id} cancelled readiness.")
@@ -97,9 +104,6 @@ def handle_client_connection(connection, address):
                 if len(parts) == 5:
                     _, _, x, z, rotation_y = parts
                     player_positions[player_id] = (float(x), float(z), float(rotation_y))
-            elif data.startswith(f"{player_id}/Bomb/"):
-                _, _, x, y, size = data.split('/')
-                broadcast(f"Bomb/{player_id}/{x}/{y}/{size}")
             elif data.startswith(f"{player_id}/EndGame"):
                 global game_running
                 game_running = False
@@ -114,6 +118,8 @@ def handle_client_connection(connection, address):
     del player_scores[player_id]
     del player_positions[player_id]
     player_count -= 1
+    available_ids.append(player_id)
+    available_ids.sort()
     broadcast_player_count()
     print(f"Player {player_id} connection closed.")
 

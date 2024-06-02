@@ -1,17 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
 public class Bomb : MonoBehaviour
 {
     public AudioClip explosionSound;
     public GameObject explosionPrefab;
-
     public LayerMask levelMask;
     private bool exploded = false;
     public int PlayerId;
-
     public int explode_size = 2;
     public PlayerUnit player;
     private AudioSource audioSource;
@@ -35,13 +32,11 @@ public class Bomb : MonoBehaviour
 
         StartCoroutine(CreateExplosions(Vector3.forward));
         StartCoroutine(CreateExplosions(Vector3.right));
-
         StartCoroutine(CreateExplosions(Vector3.back));
         StartCoroutine(CreateExplosions(Vector3.left));
 
         exploded = true;
         GetComponent<MeshRenderer>().enabled = false;
-
         transform.Find("Collider").gameObject.SetActive(false);
         Destroy(gameObject, .3f);
         player.bombs++;
@@ -63,13 +58,20 @@ public class Bomb : MonoBehaviour
         for (int i = 1; i < explode_size; i++)
         {
             RaycastHit hit;
-            Physics.Raycast(transform.position + new Vector3(0, .5f, 0), direction, out hit, i, levelMask);
+            Vector3 rayOrigin = transform.position + new Vector3(0, .5f, 0);
+            bool hitSomething = Physics.Raycast(rayOrigin, direction, out hit, i, levelMask);
 
-            if (!hit.collider) list.Add(transform.position + (i * direction));
+            if (!hitSomething)
+            {
+                list.Add(transform.position + (i * direction));
+            }
             else
             {
+                Debug.Log($"Hit something: {hit.collider.name} with tag {hit.collider.tag}");
+
                 if (hit.collider.CompareTag("Breakable"))
                 {
+                    Debug.Log("Bomb touched a breakable object.");
                     hit.collider.GetComponent<Brick>().Collide = true;
                     hit.collider.gameObject.SetActive(false);
                 }
@@ -78,7 +80,6 @@ public class Bomb : MonoBehaviour
                     list.Add(transform.position + (i * direction));
                     continue;
                 }
-
                 break;
             }
         }
@@ -90,5 +91,10 @@ public class Bomb : MonoBehaviour
             script.EnemyId = PlayerId;
             yield return new WaitForSeconds(.05f);
         }
+    }
+
+    private void OnDestroy()
+    {
+        // Avoid creating new objects here
     }
 }

@@ -22,4 +22,9 @@ public class Brick : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void OnDestroy()
+    {
+        // Clean up any additional objects or references here if necessary
+    }
 }

@@ -180,11 +180,31 @@ public class network : MonoBehaviour
             }
             else if (msg.StartsWith("Position/"))
             {
-                // Handle position update from the server
+                string[] parts = msg.Split('/');
+                if (parts.Length == 5)
+                {
+                    if (int.TryParse(parts[1], out int id))
+                    {
+                        float x = float.Parse(parts[2]);
+                        float z = float.Parse(parts[3]);
+                        float rotationY = float.Parse(parts[4]);
+                        UnityMainThreadDispatcher.Instance().Enqueue(() => UpdatePlayerPosition(id, x, z, rotationY));
+                    }
+                }
             }
             else if (msg.StartsWith("Bomb/"))
             {
-                // Handle bomb update from the server
+                string[] parts = msg.Split('/');
+                if (parts.Length == 5)
+                {
+                    float x = float.Parse(parts[1]);
+                    float z = float.Parse(parts[2]);
+                    int playerId = int.Parse(parts[3]);
+                    int explodeSize = int.Parse(parts[4]);
+                    if(playerId != playerId){
+                        UnityMainThreadDispatcher.Instance().Enqueue(() => SpawnBomb(x, z, playerId, explodeSize));
+                    }
+                }
             }
             else if (msg == "EndGame")
             {
@@ -196,6 +216,33 @@ public class network : MonoBehaviour
             }
         }
     }
+
+    private void UpdatePlayerPosition(int id, float x, float z, float rotationY)
+    {
+        if (id != playerId)
+        {
+            GameObject enemy = Gameplay.instance.GetEnemy(id);
+            if (enemy != null)
+            {
+                enemy.transform.position = new Vector3(x, enemy.transform.position.y, z);
+                enemy.transform.rotation = Quaternion.Euler(0, rotationY, 0);
+            }
+            else{
+                Debug.LogError(id);
+            }
+        }
+    }
+
+    private void SpawnBomb(float x, float z, int playerId, int explodeSize)
+    {
+        Vector3 position = new Vector3(x, 0, z);
+        GameObject bombPrefab = Resources.Load<GameObject>("BombPrefabPath"); // Replace with the actual path to your bomb prefab
+        GameObject bombInstance = Instantiate(bombPrefab, position, Quaternion.identity);
+        Bomb bombScript = bombInstance.GetComponent<Bomb>();
+        bombScript.PlayerId = playerId;
+        bombScript.explode_size = explodeSize;
+    }
+
 
     private void UpdatePlayerCount(int count)
     {
@@ -246,6 +293,7 @@ public class network : MonoBehaviour
 
     public void OnDestroy()
     {
+        EndGame();
         isRunning = false;
         if (receiveThread != null && receiveThread.IsAlive)
         {

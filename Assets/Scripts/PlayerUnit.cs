@@ -36,33 +36,6 @@ public class PlayerUnit : MonoBehaviour
         return Math.Abs(lx - rx) + Math.Abs(ly - ry);
     }
 
-    /*private PlayerUnit GetNearestEnemy(int playerId)
-    {
-        PlayerUnit[] enemies = FindObjectsOfType<PlayerUnit>();
-
-        var player = FindObjectsOfType<PlayerUnit>()
-            .FirstOrDefault(u => u.PlayerId == playerId);
-
-        int min = 100000;
-        PlayerUnit playerUnit = null;
-
-        for(int k = 0; k < enemies.Length; k++)
-        {
-            if(playerId != enemies[k].PlayerId && MyPlayerPrefs.IsAlive(enemies[k].PlayerId))
-            {
-                int dist = Manhattan(player.transform.position, enemies[k].transform.position);
-
-                if(min > dist)
-                {
-                    playerUnit = enemies[k];
-                    min = dist;
-                }
-            }
-        }
-
-        return playerUnit;
-    }*/
-
     public void OnTriggerEnter(Collider other)
     {
         if (!dead && other.CompareTag("Explosion"))
@@ -74,19 +47,12 @@ public class PlayerUnit : MonoBehaviour
             int playerId = MyPlayerPrefs.GetPlayerId();
             var self = other.gameObject.GetComponent<DestroySelf>();
 
-            //if(!MyPlayerPrefs.IsAlive(playerId))
-            //{
-                if (self.EnemyId != playerId && self.EnemyId > 0 /*&& MyPlayerPrefs.IsAlive(self.EnemyId)*/)
-                    MyPlayerPrefs.SetEnemyId(self.EnemyId);
-                else
-                {
-                    int enemyId = MyPlayerPrefs.GetEnemyId();
-                    //var enemyUnit = GetNearestEnemy(enemyId);
-
-                    //if (enemyUnit != null && !MyPlayerPrefs.IsAlive(enemyId))
-                    //    MyPlayerPrefs.SetEnemyId(enemyUnit.PlayerId);
-                }
-            //}
+            if (self.EnemyId != playerId && self.EnemyId > 0)
+                MyPlayerPrefs.SetEnemyId(self.EnemyId);
+            else
+            {
+                int enemyId = MyPlayerPrefs.GetEnemyId();
+            }
 
             Destroy(gameObject);
         }

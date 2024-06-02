@@ -11,6 +11,8 @@ public class Gameplay : MonoBehaviour
     public GameObject[] enemy;
     public static Gameplay instance;
 
+    public GameObject bombPrefab;
+
 
     void Awake()
     {
@@ -69,6 +71,15 @@ public class Gameplay : MonoBehaviour
     public void KillAgent(int PlayerId)
     {
         MyPlayerPrefs.KillAgent(GameEnd, PlayerId);
+    }
+
+    public void SpawnBomb(float x, float z, int playerId, int explodeSize)
+    {
+        Vector3 position = new Vector3(x, 0.22294f, z);
+        GameObject bombInstance = Instantiate(bombPrefab, position, Quaternion.identity);
+        Bomb bombScript = bombInstance.GetComponent<Bomb>();
+        bombScript.PlayerId = playerId;
+        bombScript.explode_size = explodeSize;
     }
 
 }

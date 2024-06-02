@@ -142,7 +142,6 @@ public class network : MonoBehaviour
                     if (int.TryParse(parts[1], out int playerCount))
                     {
                         PlayerCount = playerCount;
-                        print(PlayerCount);
                         UnityMainThreadDispatcher.Instance().Enqueue(() => UpdatePlayerCount(playerCount));
                     }
                 }
@@ -178,37 +177,38 @@ public class network : MonoBehaviour
                     }
                 }
             }
-            else if (msg.StartsWith("Position/"))
+            else if (msg.StartsWith("Positions/"))
             {
                 string[] parts = msg.Split('/');
-                if (parts.Length == 5)
+                for (int i = 1; i < parts.Length; i += 4)
                 {
-                    if (int.TryParse(parts[1], out int id))
+                    if (int.TryParse(parts[i], out int id) && id != playerId)
                     {
-                        float x = float.Parse(parts[2]);
-                        float z = float.Parse(parts[3]);
-                        float rotationY = float.Parse(parts[4]);
+                        float x = float.Parse(parts[i + 1]);
+                        float z = float.Parse(parts[i + 2]);
+                        float rotationY = float.Parse(parts[i + 3]);
                         UnityMainThreadDispatcher.Instance().Enqueue(() => UpdatePlayerPosition(id, x, z, rotationY));
                     }
                 }
             }
             else if (msg.StartsWith("Bomb/"))
             {
+                Debug.Log("Received: " + msg);
                 string[] parts = msg.Split('/');
                 if (parts.Length == 5)
                 {
-                    float x = float.Parse(parts[1]);
-                    float z = float.Parse(parts[2]);
-                    int playerId = int.Parse(parts[3]);
+                    int PlayerId = int.Parse(parts[1]);
+                    float x = float.Parse(parts[2]);
+                    float z = float.Parse(parts[3]);
                     int explodeSize = int.Parse(parts[4]);
-                    if(playerId != playerId){
-                        UnityMainThreadDispatcher.Instance().Enqueue(() => SpawnBomb(x, z, playerId, explodeSize));
+                    if(playerId != PlayerId){
+                        UnityMainThreadDispatcher.Instance().Enqueue(() => Gameplay.instance.SpawnBomb(x, z, PlayerId, explodeSize));
                     }
                 }
             }
             else if (msg == "EndGame")
             {
-                UnityMainThreadDispatcher.Instance().Enqueue(EndGame);
+                UnityMainThreadDispatcher.Instance().Enqueue(() => Gameplay.instance.GameEnd());
             }
             else
             {
@@ -233,17 +233,6 @@ public class network : MonoBehaviour
         }
     }
 
-    private void SpawnBomb(float x, float z, int playerId, int explodeSize)
-    {
-        Vector3 position = new Vector3(x, 0, z);
-        GameObject bombPrefab = Resources.Load<GameObject>("BombPrefabPath"); // Replace with the actual path to your bomb prefab
-        GameObject bombInstance = Instantiate(bombPrefab, position, Quaternion.identity);
-        Bomb bombScript = bombInstance.GetComponent<Bomb>();
-        bombScript.PlayerId = playerId;
-        bombScript.explode_size = explodeSize;
-    }
-
-
     private void UpdatePlayerCount(int count)
     {
         playerCountText.text = count.ToString();
@@ -262,6 +251,7 @@ public class network : MonoBehaviour
         Debug.Log("Game over!");
         string message = playerId + "/EndGame";
         SendData(message);
+        
     }
 
     private void SpawnObject(int objectId)

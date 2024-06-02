@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     private network networkInstance;
 
     private Vector3 lastSentPosition;
-    private float distanceThreshold = 0.3f; // 当移动超过0.5米时传送位置
+    //private float distanceThreshold = 0.05f; // 当移动超过0.05米时传送位置
 
     public void Start()
     {
@@ -35,6 +35,9 @@ public class PlayerController : MonoBehaviour
         joystick = FindObjectOfType<DynamicJoystick>();
         networkInstance = network.instance;
         lastSentPosition = transform.position;
+
+        // 启动定期传送位置的协程
+        StartCoroutine(SendPositionRegularly());
     }
 
     private bool GetKey(Joypad key)
@@ -95,16 +98,19 @@ public class PlayerController : MonoBehaviour
         if (movement != Vector3.zero)
         {
             rigidBody.velocity = new Vector3(movement.x, rigidBody.velocity.y, movement.z);
-            if (Vector3.Distance(rigidBody.velocity, lastSentPosition) > distanceThreshold)
-            {
-                SendPosition();
-                lastSentPosition = rigidBody.velocity;
-            }
         }
-        
 
         if (canDropBombs && (Input.GetKeyDown(KeyCode.Space) || GetActionKey()))
             DropBomb();
+    }
+
+    private IEnumerator SendPositionRegularly()
+    {
+        while (true)
+        {
+            SendPosition();
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
     private void SendPosition()

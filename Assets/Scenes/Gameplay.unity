@@ -5378,6 +5378,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   round: {fileID: 2126218292}
   Dashboard: {fileID: 390240440}
+  enemy: []
+  bombPrefab: {fileID: 124052, guid: 6291891f72f724c4eae6be6052e78735, type: 3}
 --- !u!1 &1534025716
 GameObject:
   m_ObjectHideFlags: 0

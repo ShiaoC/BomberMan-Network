@@ -10,7 +10,7 @@ public class Bomb : MonoBehaviour
     private bool exploded = false;
     public int PlayerId;
     public int explode_size = 2;
-    public PlayerUnit player;
+    public PlayerUnit player = null;
     private AudioSource audioSource;
 
     public void Awake()
@@ -39,7 +39,9 @@ public class Bomb : MonoBehaviour
         GetComponent<MeshRenderer>().enabled = false;
         transform.Find("Collider").gameObject.SetActive(false);
         Destroy(gameObject, .3f);
-        player.bombs++;
+        if(player!= null){
+            player.bombs++;
+        }
     }
 
     public void OnTriggerEnter(Collider other)
@@ -67,7 +69,7 @@ public class Bomb : MonoBehaviour
             }
             else
             {
-                Debug.Log($"Hit something: {hit.collider.name} with tag {hit.collider.tag}");
+                //Debug.Log($"Hit something: {hit.collider.name} with tag {hit.collider.tag}");
 
                 if (hit.collider.CompareTag("Breakable"))
                 {

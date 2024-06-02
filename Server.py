@@ -8,7 +8,9 @@ player_connections = {}
 player_ready_status = {}
 player_scores = {}
 player_positions = {}
+player_alive_status = {}  # 记录玩家是否存活
 player_count = 0
+player_alive_count = 99
 game_running = False
 available_ids = []
 
@@ -33,10 +35,13 @@ def broadcast_player_count():
     broadcast(message)
 
 def broadcast_start_game():
-    global game_running
+    global game_running, player_alive_count
     message = "StartGame"
     broadcast(message)
     game_running = True
+    player_alive_count = player_count
+    if player_alive_count == 1:
+        player_alive_count = 2
     threading.Thread(target=update_player_positions).start()
 
 def broadcast_ready_count():
@@ -51,7 +56,7 @@ def check_all_ready():
         time.sleep(2)
 
 def handle_client_connection(connection, address):
-    global player_id_counter, player_count, player_ready_status, player_scores, player_positions, available_ids
+    global player_id_counter, player_count, player_ready_status, player_scores, player_positions, player_alive_status, available_ids, player_alive_count, game_running
     
     if available_ids:
         player_id = available_ids.pop(0)
@@ -62,7 +67,8 @@ def handle_client_connection(connection, address):
     player_connections[player_id] = connection
     player_ready_status[player_id] = False
     player_scores[player_id] = 0
-    player_positions[player_id] = (0.0, 0.0, 0.0)  # Initial position
+    player_positions[player_id] = (-10.0, -10.0, -10.0)  # Initial position
+    player_alive_status[player_id] = True  # 玩家初始状态为存活
     player_count += 1
 
     print(f"New connection from {address}. Assigned player ID: {player_id}")
@@ -101,11 +107,27 @@ def handle_client_connection(connection, address):
                 player_scores[player_id] = score
             elif data.startswith(f"{player_id}/Position/"):
                 parts = data.split('/')
-                if len(parts) == 5:
+                if len(parts) == 5 and player_alive_status[player_id]:
                     _, _, x, z, rotation_y = parts
                     player_positions[player_id] = (float(x), float(z), float(rotation_y))
+            elif data == f"{player_id}/Dead":
+                player_alive_status[player_id] = False
+                player_alive_count -= 1
+                if player_alive_count <= 1:
+                    game_running = False
+                    broadcast('EndGame')
+                broadcast(f"Remove/{player_id}")
+
+            elif data.startswith("Positions/"):
+                parts = data.split('/')
+                for i in range(1, len(parts), 4):
+                    id = int(parts[i])
+                    x = float(parts[i+1])
+                    z = float(parts[i+2])
+                    rotation_y = float(parts[i+3])
+                    if player_alive_status[id]:
+                        player_positions[id] = (x, z, rotation_y)
             elif data.startswith(f"{player_id}/EndGame"):
-                global game_running
                 game_running = False
 
         except (socket.error, ConnectionResetError) as e:
@@ -117,6 +139,7 @@ def handle_client_connection(connection, address):
     del player_ready_status[player_id]
     del player_scores[player_id]
     del player_positions[player_id]
+    del player_alive_status[player_id]
     player_count -= 1
     available_ids.append(player_id)
     available_ids.sort()
@@ -124,10 +147,15 @@ def handle_client_connection(connection, address):
     print(f"Player {player_id} connection closed.")
 
 def update_player_positions():
+    global game_running
     while game_running:
-        for player_id, (x, z, rotation_y) in player_positions.items():
-            broadcast(f"Position/{player_id}/{x:.2f}/{z:.2f}/{rotation_y:.2f}")
-        time.sleep(0.2)
+        if player_positions:
+            positions = "Positions"
+            for player_id, (x, z, rotation_y) in player_positions.items():
+                if player_alive_status[player_id]:  # 只发送存活玩家的位置
+                    positions += f"/{player_id}/{x:.2f}/{z:.2f}/{rotation_y:.2f}"
+            broadcast(positions)
+        time.sleep(0.1)
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

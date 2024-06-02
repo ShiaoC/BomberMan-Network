@@ -47,6 +47,9 @@ public class PlayerUnit : MonoBehaviour
             int playerId = MyPlayerPrefs.GetPlayerId();
             var self = other.gameObject.GetComponent<DestroySelf>();
 
+            string message = $"{PlayerId}/Dead";
+            network.instance.SendData(message);
+
             if (self.EnemyId != playerId && self.EnemyId > 0)
                 MyPlayerPrefs.SetEnemyId(self.EnemyId);
             else

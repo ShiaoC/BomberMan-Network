@@ -1360,7 +1360,7 @@ ScriptsOnlyBuild:
     className: DestroySelf
   - hash:
       serializedVersion: 2
-      Hash: e81c9e3695f61827140837282522c37e
+      Hash: 82d5ff05f54d83ceb218d19e55d1339b
     assemblyName: Assembly-CSharp
     namespaceName: 
     className: Gameplay
@@ -1494,4 +1494,4 @@ ScriptsOnlyBuild:
   scenePathNames:
   - Assets/Scenes/main.unity
   - Assets/Scenes/Gameplay.unity
-  playerPath: /Users/shiaoc/github/Unity/BomberMan-Network/output.app
+  playerPath: /Users/shiaoc/github/Unity/output/BumberMan.app

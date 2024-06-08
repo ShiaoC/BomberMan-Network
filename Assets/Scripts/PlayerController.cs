@@ -138,7 +138,7 @@ public class PlayerController : MonoBehaviour
 
             if (player.canKick) obj.GetComponent<Rigidbody>().isKinematic = false;
 
-            string message = $"{network.playerId}/Bomb/{Mathf.RoundToInt(myTransform.position.x)}/{Mathf.RoundToInt(myTransform.position.z)}/{player.explosion_power}";
+            string message = $"{network.playerId}/Bomb/{Mathf.RoundToInt(myTransform.position.x)}/{Mathf.RoundToInt(myTransform.position.z)}/{player.explosion_power}\n";
             networkInstance.SendData(message);
         }
     }

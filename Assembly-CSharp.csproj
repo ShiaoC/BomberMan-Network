@@ -73,7 +73,6 @@
     <Compile Include="Assets/Scripts/UI/Gameplay/PauseGame.cs" />
     <Compile Include="Assets/Scripts/UI/Lobby/GameMenu.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Joypad.cs" />
-    <Compile Include="Assets/Scripts/My/network.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Gamepad.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Board.cs" />
     <Compile Include="Assets/Scripts/UI/Lobby/Options.cs" />
@@ -81,6 +80,7 @@
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" />
     <Compile Include="Assets/Scripts/PlayerType.cs" />
     <Compile Include="Assets/Scripts/UI/Lobby/GameStart.cs" />
+    <Compile Include="Assets/Scripts/UnityMainThreadDispatcher.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Dashboard.cs" />
     <Compile Include="Assets/Scripts/Brick.cs" />
     <Compile Include="Assets/Scripts/Core/MyPlayerPrefs.cs" />
@@ -92,14 +92,15 @@
     <Compile Include="Assets/Scripts/TriggerPlayerExit.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Clock.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/ActionJoystick.cs" />
+    <Compile Include="Assets/Scripts/DontDestroy.cs" />
     <Compile Include="Assets/Scripts/Core/MyCustomMap.cs" />
     <Compile Include="Assets/Scripts/PowerUp.cs" />
     <Compile Include="Assets/Scripts/PlayerUnit.cs" />
-    <Compile Include="Assets/Scripts/My/DontDestroy.cs" />
+    <Compile Include="Assets/Scripts/network.cs" />
+    <Compile Include="Assets/Scripts/TimeReceiver.cs" />
     <Compile Include="Assets/Scripts/DisableTriggerOnPlayerExit.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
-    <Compile Include="Assets/Scripts/My/UnityMainThreadDispatcher.cs" />
     <Compile Include="Assets/Scripts/UI/Gameplay/Window.cs" />
     <Compile Include="Assets/Scripts/Core/MusicEffect.cs" />
     <Compile Include="Assets/Scripts/PlayerController.cs" />
